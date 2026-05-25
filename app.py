@@ -4,26 +4,76 @@ from extensions import db
 
 app = Flask(__name__)
 
-# DATABASE CONFIGURATION
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///employee.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# INITIALIZE DB
+
 db.init_app(app)
 
-# IMPORT MODELS
+
 from models import Role, Department, User
 
 
-# HOME ROUTE
+# CREATE TABLES + AUTO SEED DATA
+with app.app_context():
+
+    db.create_all()
+
+    
+    roles = [
+        'Admin',
+        'Manager',
+        'Team Leader',
+        'Employee'
+    ]
+
+    for role_name in roles:
+
+        existing_role = Role.query.filter_by(
+            role_name=role_name
+        ).first()
+
+        if not existing_role:
+
+            role = Role(role_name=role_name)
+
+            db.session.add(role)
+
+    
+    departments = [
+        'Operation',
+        'Sales',
+        'Accounts',
+        'IT'
+    ]
+
+    for department_name in departments:
+
+        existing_department = Department.query.filter_by(
+            department_name=department_name
+        ).first()
+
+        if not existing_department:
+
+            department = Department(
+                department_name=department_name
+            )
+
+            db.session.add(department)
+
+    db.session.commit()
+
+
+
 @app.route('/')
 def home():
 
     return redirect('/dashboard')
 
 
-# ADD EMPLOYEE ROUTE
+
 @app.route('/add_employee', methods=['GET', 'POST'])
 def add_employee():
 
