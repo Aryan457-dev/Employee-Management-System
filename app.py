@@ -1,61 +1,55 @@
 from flask import Flask, render_template, request, redirect
-
 from extensions import db
+import os
 
 app = Flask(__name__)
 
+# SQLITE DATABASE PATH
+basedir = os.path.abspath(os.path.dirname(__file__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///employee.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'employee.db')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
+# INITIALIZE DB
 db.init_app(app)
 
-
+# IMPORT MODELS
 from models import Role, Department, User
 
 
-# CREATE TABLES + AUTO SEED DATA
+# CREATE TABLES + SEED DATA
 with app.app_context():
 
     db.create_all()
 
-    
-    roles = [
-        'Admin',
-        'Manager',
-        'Team Leader',
-        'Employee'
-    ]
+    # INSERT ROLES
+    if Role.query.count() == 0:
 
-    for role_name in roles:
+        roles = [
+            'Admin',
+            'Manager',
+            'Team Leader',
+            'Employee'
+        ]
 
-        existing_role = Role.query.filter_by(
-            role_name=role_name
-        ).first()
-
-        if not existing_role:
+        for role_name in roles:
 
             role = Role(role_name=role_name)
 
             db.session.add(role)
 
-    
-    departments = [
-        'Operation',
-        'Sales',
-        'Accounts',
-        'IT'
-    ]
+    # INSERT DEPARTMENTS
+    if Department.query.count() == 0:
 
-    for department_name in departments:
+        departments = [
+            'Operation',
+            'Sales',
+            'Accounts',
+            'IT'
+        ]
 
-        existing_department = Department.query.filter_by(
-            department_name=department_name
-        ).first()
-
-        if not existing_department:
+        for department_name in departments:
 
             department = Department(
                 department_name=department_name
@@ -66,14 +60,14 @@ with app.app_context():
     db.session.commit()
 
 
-
+# HOME ROUTE
 @app.route('/')
 def home():
 
     return redirect('/dashboard')
 
 
-
+# ADD EMPLOYEE
 @app.route('/add_employee', methods=['GET', 'POST'])
 def add_employee():
 
@@ -99,9 +93,9 @@ def add_employee():
 
             mobile=request.form['mobile'],
 
-            dept_id=request.form['dept_id'],
+            dept_id=int(request.form['dept_id']),
 
-            role_id=request.form['role_id'],
+            role_id=int(request.form['role_id']),
 
             reporting_manager_id=request.form.get('reporting_manager_id') or None,
 
@@ -122,7 +116,7 @@ def add_employee():
     )
 
 
-# DASHBOARD ROUTE
+# DASHBOARD
 @app.route('/dashboard')
 def dashboard():
 
@@ -140,9 +134,11 @@ def delete_employee(id):
 
     employee = User.query.get(id)
 
-    db.session.delete(employee)
+    if employee:
 
-    db.session.commit()
+        db.session.delete(employee)
+
+        db.session.commit()
 
     return redirect('/dashboard')
 
@@ -171,9 +167,9 @@ def update_employee(id):
 
         employee.mobile = request.form['mobile']
 
-        employee.dept_id = request.form['dept_id']
+        employee.dept_id = int(request.form['dept_id'])
 
-        employee.role_id = request.form['role_id']
+        employee.role_id = int(request.form['role_id'])
 
         employee.reporting_manager_id = request.form.get('reporting_manager_id') or None
 
@@ -193,4 +189,5 @@ def update_employee(id):
 
 
 if __name__ == "__main__":
+
     app.run(host='0.0.0.0', port=5000)
