@@ -68,7 +68,7 @@ employee-management-system/
 ## Clone Repository
 
 ```bash
-
+https://github.com/Aryan457-dev/Employee-Management-System
 ```
 
 ## Navigate to Project
