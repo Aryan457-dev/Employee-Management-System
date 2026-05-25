@@ -28,19 +28,6 @@
             border-radius: 20px;
         }
 
-        table {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        th {
-            white-space: nowrap;
-        }
-
-        td {
-            vertical-align: middle;
-        }
-
     </style>
 
 </head>
@@ -70,7 +57,7 @@
 
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle">
 
                         <thead class="table-dark">
 
@@ -118,9 +105,33 @@
 
                                 <td>{{ employee.mobile }}</td>
 
-                                <td>{{ employee.department.department_name }}</td>
+                                <td>
 
-                                <td>{{ employee.role.role_name }}</td>
+                                    {% if employee.department %}
+
+                                        {{ employee.department.department_name }}
+
+                                    {% else %}
+
+                                        N/A
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    {% if employee.role %}
+
+                                        {{ employee.role.role_name }}
+
+                                    {% else %}
+
+                                        N/A
+
+                                    {% endif %}
+
+                                </td>
 
                                 <td>{{ employee.date_of_joining }}</td>
 
